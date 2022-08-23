@@ -32,6 +32,34 @@ def show_description(species: str) -> None:
     col2.write(description, unsafe_allow_html=True)
 
 
+def show_description1(species: str) -> None:
+    @st.cache(suppress_st_warning=True)
+    def _read_descriptions(species: str) -> str:
+        with open(f'{species.lower()}_descriptions.txt', 'r') as f:
+            return f.read()
+
+    @st.cache(suppress_st_warning=True)
+    def _load_images():
+        st.write('Cache miss')
+        images = {
+            'Setosa': Image.open('setosa.jpg'),
+            'Versicolor': Image.open('versicolor.jpg'),
+            'Virginica': Image.open('virginica.jpg'),
+        }
+        return images
+
+    # col1, col2 = st.beta_columns(2)
+    col1, col2 = st.columns(2)
+    description = _read_descriptions(species)
+    images = _load_images()
+    col1.header(species)
+    col1.image(images[species], use_column_width=True)
+    col2.header('Description')
+    col2.write(description, unsafe_allow_html=True)    
+    st.write('니가 골랐어 아랫 것을')    
+    st.write(species)    
+
+
 def home_page() -> None:
     st.title('Looking into Iris Dataset')
     st.image('all_three.jpg', caption='Three types of Iris flowers.')
@@ -76,17 +104,35 @@ def graphs_page() -> None:
     st.header('*Can also support Plotly and Bokeh')
 
 
+
+def control_page() -> None:
+    st.title('Control')
+
+    st.header('Spot test control')
+    selected_sepecies = st.radio('Select species', ['Setosa', 'Versicolor', 'Virginica'])
+    show_description1(selected_sepecies)
+
+    if selected_sepecies ==  'Setosa' : print('세토사')
+    elif selected_sepecies ==  'Versicolor' : 
+        {print('베지칼러')}
+
+    st.write('*Spot get robot state')
+
+
+
 if __name__ == '__main__':
     df = pd.read_csv('iris.csv')
 
     selected_page = st.sidebar.selectbox(
         'Select Page',
-        ('Home', 'Dataset', 'Graphs')
+        ('Home', 'Dataset', 'Graphs', 'Control')
     )
 
     if selected_page == 'Home':
         home_page()
     elif selected_page == 'Dataset':
         dataset_page()
-    else:
+    elif selected_page == 'Graphs':
         graphs_page()
+    else:
+        control_page()
